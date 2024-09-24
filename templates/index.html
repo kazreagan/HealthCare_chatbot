@@ -4,55 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Healthcare Chatbot</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f7f9fc;
+            font-family: Arial, sans-serif;
+            display: felx;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            justify-content: space-between;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            width: 60%;
+            margin: auto;
+            height: 90%;
+            padding: 20px;
+            box-shadow: 0px, 4px, 8px, rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        .chat-box {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-top: 50px;
         }
-        .chat-container {
-            max-width: 600px;
-            margin: auto;
+
+        .message {
+            margin: 10px 0;
         }
-        .chat-box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .bot-message {
-            color: blue;
-            font-weight: bold;
-        }
+
         .user-message {
-            color: green;
+            color: #1e88e5;
             font-weight: 400;
         }
-        footer {
-            text-align: center;
-            position: fixed;
-            color: #777;
-            opacity: 0.8;
 
+        .bot-message {
+            color: #388e3c;
+            font-weight: bold;
+        }
+        
+        .header {
+            text-align: center;
+            color: #007bff;
+            padding: 15px 0;
+            font-size: 40 px;
+            font-weight: bold;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .footer {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        .footer button {
+            padding: 10px 20px;
+            background-color: #0288d1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .footer button:hover {
+            background-color: #01579b;
+        }
+
+        .footer {
+            margin-top: auto;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 10px;
+            color: #555;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <h2 class="text-center">Healthcare Chatbot</h2>
-        <div class="chat-bot">
-            {% if user_message %}
-            <p class="user-message"><strong>You:</strong> <span>{{ user_message}}</span></p>
-            <p class="bot-message"><strong>Bot:</strong> <span>{{ bot_response}}</span></p>
-            {% endif %}
-            <form method="POST" action="/chat">
-                <div class="form-group">
-                    <input type="text" class="form-control" name="message" placeholder="Ask me anything about your health........" required>
-                </div>
-            </form>        
+    <div class="header">HEALTHCARE ASSISTANT</div>
+
+    <div class="container chat-container">
+        <form id="chat-form">
+            <label for="message">You:</label>
+            <input type="text" name="message" id="message" placeholder="Enter your message here" required>
+            <button type="submit">Send</button>
+        </form>
+
+        <div class="chat-box" id="chat-box">
+            <!-- The chat messages will be appended here dynamically -->
         </div>
+
+        <footer>
+            <p>&copy; Kazungu Reagan, All Rights Reserved</p>
+        </footer>
+
+        <script>
+            // JavaScript for handling the form submission
+            document.getElementById('chat-form').addEventListener('submit', function(event) {
+                event.preventDefault();  // Prevent the form from submitting the traditional way
+
+                const messageInput = document.getElementById('message');
+                const userMessage = messageInput.value;
+                const chatBox = document.getElementById('chat-box');
+
+                // Make an AJAX POST request to the Flask server
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `message=${encodeURIComponent(userMessage)}`
+                })
+                .then(response => response.json())  // Expecting a JSON response from the server
+                .then(data => {
+                    // Append user message and bot response to chat-box
+                    chatBox.innerHTML += `<p class="user-message">You: ${data.user_message}</p>`;
+                    chatBox.innerHTML += `<p class="bot-response">Bot: ${data.bot_response}</p>`;
+                    
+                    // Clear the input field after sending the message
+                    messageInput.value = '';
+
+                    // Auto-scroll to the latest message
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        </script>
     </div>
-    
-    <footer>&copy;Health is Wealth, All Rights Reserved</footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
